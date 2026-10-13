@@ -366,7 +366,7 @@ export function groupCodeRefs(entries: CodeEntry[], system: CodeSystem, version:
 }
 
 /** Repository that holds the standard. Domain data is edited here, by pull request. */
-export const REPO_URL = 'https://github.com/dhigby/semdom';
+export const REPO_URL = 'https://github.com/sillsdev/semdom';
 
 /**
  * GitHub web-editor link for a domain's source file.

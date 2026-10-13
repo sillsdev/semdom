@@ -224,7 +224,3 @@ Structural changes go through a pull request: adding or removing a domain, chang
   rather than preventing it. Add a ruleset on `main` requiring a pull request, a passing
   **Validate** check and code-owner review, with an admin bypass entry — without the
   bypass, `dhigby` cannot merge his own pull requests, since CODEOWNERS names him.
-- **The repository is owned by a personal account.** The source of truth for an
-  international standard should live in an SIL organisation. Moving it means updating
-  `REPO_URL` in `src/lib/semdom.ts` and re-verifying the Pages custom domain at the new
-  owner.

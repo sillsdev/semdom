@@ -3,10 +3,14 @@ guid: 0DB5817E-05BF-4703-A6B9-E239AC44F857
 name: Male, female
 description: Use this domain for words referring to male and female people.
 louwNidaCodes: 79V Male, Female
-related: ["1.6.7"]
+related: ["1.6.7", "2.6.2.4"]
 questions:
   - q: What general words refer to the difference between male and female?
     words: sex, gender, male, female
+  - q: >-
+      What words refer to a person whose sense of being male or female differs from their
+      body at birth?
+    words: transgender, trans, transsexual
   - q: What pairs of words refer to male and female people?
     words: >-
       the sexes, male and female, men and women, boys and girls, ladies and gentlemen, guys

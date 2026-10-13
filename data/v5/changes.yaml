@@ -1,9 +1,13 @@
 # Accepted changes to v5, newest last. Append-only: never edit or remove an entry.
 #
-# A domain number is permanent from the moment it merges, so the reason it exists has to
-# outlive the conversation that created it. A GitHub issue is mutable, deletable and not
-# part of this repository; this file is the record. scripts/validate.mjs rejects a v5
-# domain that has no `op: add` entry with a non-empty rationale, here or in history/.
+# A domain number outlives the conversation that created it, so the reason it exists has
+# to as well. A GitHub issue is mutable, deletable and not part of this repository; this
+# file is the record. scripts/validate.mjs rejects a v5 domain that has no `op: add` entry
+# with a non-empty rationale, here or in history/.
+#
+# Before v5 is released, a v5-added domain may be removed. That is recorded as a new
+# `op: remove` entry (code, name, migrate, rationale, date), never by deleting its add
+# entry. See data/v5/POLICY.md.
 #
 # data/v5/history/*.yaml holds the change-sets from the original migration pass and is
 # frozen. Everything from here on goes in this file.
@@ -24,4 +28,26 @@
 #
 # `scripts/apply-proposal.mjs` appends entries here; you should rarely write one by hand.
 
-[]
+- op: add
+  code: 6.6.8.2.1
+  parent: 6.6.8.2
+  name: Artificial intelligence
+  rationale: >-
+    No vocabulary for artificial intelligence exists in v4 or v5. Chatbots, voice assistants
+    and machine translation are now in everyday use, including on the mobile phones that
+    dominate target communities.
+  evidence: Raised in the v5 draft review by Sharon and Johannes Merz, October 2026.
+  proposedBy: Sharon Merz and Johannes Merz
+  date: '2026-10-13'
+
+- op: remove
+  code: "4.6.8"
+  name: "Elections, voting"
+  migrate: "4.6.6.4"
+  rationale: >-
+    Duplicated v4's 4.6.6.4 Election, which the original gap audit missed when it flagged
+    'vote' and 'election' as unowned. Its questions and words were merged into 4.6.6.4
+    (renamed "Elections, voting" in v5), together with a new question on abstaining raised
+    in the v5 review by Sharon and Johannes Merz. Removed before v5's release, so the
+    number was never part of a released standard.
+  date: "2026-10-13"

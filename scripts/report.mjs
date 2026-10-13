@@ -17,29 +17,38 @@ import { loadVersion, parentOf } from './lib/domains.mjs';
 const BASE = process.argv[2] ?? 'origin/main';
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
 
-/** Rationales for added v5 domains, so a reviewer sees why a permanent number exists. */
+/**
+ * Rationales for added and removed v5 domains, so a reviewer sees why a number exists or
+ * went away. History first, then the live ledger, so a reused draft number reports its
+ * newest entry of each kind.
+ */
 function loadRationales() {
-  const byCode = new Map();
+  const added = new Map();
+  const removed = new Map();
   const ingest = (rel) => {
     try {
       // FAILSAFE_SCHEMA: an unquoted `code: 4.10` would otherwise be the number 4.1.
       const entries =
         yaml.load(readFileSync(ROOT + rel, 'utf-8'), { schema: yaml.FAILSAFE_SCHEMA }) ?? [];
-      for (const e of entries) if (e?.op === 'add' && e.code) byCode.set(String(e.code), e);
+      for (const e of entries) {
+        if (!e?.code) continue;
+        if (e.op === 'add') added.set(String(e.code), e);
+        if (e.op === 'remove') removed.set(String(e.code), e);
+      }
     } catch {
       /* a missing ledger is the validator's problem, not the report's */
     }
   };
-  ingest('data/v5/changes.yaml');
   try {
     for (const f of readdirSync(`${ROOT}data/v5/history`).sort())
       if (f.endsWith('.yaml')) ingest(`data/v5/history/${f}`);
   } catch {
     /* no history directory */
   }
-  return byCode;
+  ingest('data/v5/changes.yaml');
+  return { added, removed };
 }
-const RATIONALES = loadRationales();
+const { added: RATIONALES, removed: REMOVALS } = loadRationales();
 
 function gitShow(ref, path) {
   try {
@@ -107,8 +116,8 @@ if (!files) {
       if (!m) continue;
       const [, version, code] = m;
 
-      // An added domain is the one change that can never be undone, so it gets the
-      // fullest rendering in this report rather than the shortest.
+      // An added domain becomes permanent once v5 is released, so it gets the fullest
+      // rendering in this report rather than the shortest.
       if (f.status === 'A') {
         const d = versions.find((x) => x.v === version)?.byCode.get(code);
         if (!d) {
@@ -144,7 +153,16 @@ if (!files) {
         continue;
       }
       if (f.status === 'D') {
-        p(`- **REMOVED** \`${version}\` **${code}** — this is forbidden and should have failed validation`);
+        // Only a v5 draft number may be removed, and only before release; validate.mjs
+        // enforces both, so a v4 removal here means the gate was bypassed.
+        const r = version === 'v5' ? REMOVALS.get(code) : null;
+        if (!r) {
+          p(`- **REMOVED** \`${version}\` **${code}** — this is forbidden and should have failed validation`);
+          continue;
+        }
+        p(`- **REMOVED** \`${version}\` **${code}** — ${r.name ?? ''} (unreleased draft number)`);
+        if (r.migrate) p(`  - anything tagged here should be re-tagged to \`${r.migrate}\``);
+        p(`  - **rationale:** “${String(r.rationale ?? '').trim()}”`);
         continue;
       }
 

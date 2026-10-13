@@ -218,7 +218,7 @@ if (changesEntry) {
   writeFileSync(changesPath, text + '\n', 'utf-8');
   console.log('appended the rationale to data/v5/changes.yaml');
 
-  // The append-only ledger. Forgetting this is now a CI error, so do it here.
+  // The structure ledger. Forgetting this is a CI error, so do it here.
   execFileSync('node', [`${ROOT}scripts/validate.mjs`, '--write-lock'], { stdio: 'inherit' });
   console.log('\nregenerated the structure locks — that diff is part of the review');
 }

@@ -1,0 +1,18 @@
+code: "6.6.8.2.1"
+guid: 700A3AC0-1FB9-7C03-0CBE-1FCB84F819D9
+name: Artificial intelligence
+description: >-
+  Use this domain for words related to computer programs that can do things that usually
+  need human thinking, such as answering questions, translating, or recognizing faces and
+  voices.
+questions:
+  - q: What words refer to artificial intelligence?
+    words: artificial intelligence, AI, machine learning
+  - q: What words refer to a program or machine that talks or acts like a person?
+    words: chatbot, AI assistant, voice assistant, bot, robot
+  - q: What words refer to asking an AI program to do something?
+    words: ask, prompt, command, instruction
+  - q: What words refer to things an AI program does?
+    words: answer, generate, translate, recognize, predict, learn
+  - q: What words refer to something made by an AI program?
+    words: AI-generated, deepfake, fake

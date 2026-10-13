@@ -27,8 +27,14 @@ Every tagged sense in every dictionary built on v4 references a **domain
 number** (e.g. `2.6.2.3`). Those references live in data we do not control and
 cannot migrate. Therefore:
 
-> **A domain number's meaning can never change, and a number, once used, is
-> never reused or deleted.** GUIDs are likewise permanent.
+> **A released domain number's meaning can never change, and a released number
+> is never reused or deleted.** GUIDs are likewise permanent.
+
+"Released" is the operative word. Every v4 number is released. A number that v5
+adds becomes released when v5 is (`V5_RELEASE_DATE` in
+`scripts/lib/domain-rules.mjs`). Until then a v5-added domain may be removed with an
+`op: remove` entry that records why and where tagged words should go, and its
+number may be reused. See `data/v5/POLICY.md`.
 
 ## Allowed operations
 
@@ -39,12 +45,15 @@ cannot migrate. Therefore:
 | **move-question** | Relocate a question (and its words) to a new/other domain | The origin domain remains a valid, more-general tag; the migration map records the suggested re-tag |
 | **deprecate-soft** | Mark a domain "prefer subdomains" in its description | Domain stays; never removed |
 
-**Forbidden:** deleting a domain, reusing a number, changing a GUID, or
-narrowing a domain so that already-tagged words become mis-tagged.
+| **remove** | Delete a domain that v5 added | **Before v5's release only.** Never a v4 domain. Needs an `op: remove` entry with a rationale and, where words may be tagged, a `migrate` target |
+
+**Forbidden:** deleting a released domain, reusing a released number, changing a
+GUID, or narrowing a domain so that already-tagged words become mis-tagged.
 
 Every added domain carries a `rationale`, recorded in `data/v5/changes.yaml` (or,
-for the original migration pass, in the frozen `data/v5/history/*.yaml`).
-`scripts/validate.mjs` rejects a v5 domain that has none.
+for the original migration pass, in the frozen `data/v5/history/*.yaml`), and so
+does every removal. `scripts/validate.mjs` rejects a v5 domain, or a removal, that
+has none.
 
 The **v4→v5 migration map** is `data/v5/migrations.yaml`: old code → new code,
 with the condition under which a sense should be re-tagged (e.g. "senses about

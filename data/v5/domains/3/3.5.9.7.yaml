@@ -16,4 +16,4 @@ questions:
   - q: What words refer to sending messages over the internet?
     words: email, e-mail, send, receive, inbox, attachment
   - q: What words refer to controlling who can use an account or device?
-    words: password, PIN, log in, log out, account, username
+    words: password, PIN, log in, log out, sign in, sign out, account, username

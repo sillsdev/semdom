@@ -16,6 +16,10 @@ questions:
       power, pole, transformer, hydroelectric
   - q: What words refer to batteries?
     words: battery
+  - q: What words refer to producing electricity?
+    words: >-
+      generate, power station, power plant, dam, hydroelectric, wind power, wind turbine,
+      turbine, solar power, nuclear power, renewable energy, alternative energy
   - q: What words refer to generating or storing electricity locally?
     words: >-
       solar panel, solar power, generator, inverter, charger, rechargeable battery, power

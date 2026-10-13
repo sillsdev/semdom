@@ -15,7 +15,14 @@ import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
 import { loadVersion, parentOf, compareCodes } from './lib/domains.mjs';
-import { checkText, checkQuestion, checkCode, checkGuid, domainPath } from './lib/domain-rules.mjs';
+import {
+  checkText,
+  checkQuestion,
+  checkCode,
+  checkGuid,
+  domainPath,
+  V5_RELEASE_DATE,
+} from './lib/domain-rules.mjs';
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
 const WRITE_LOCK = process.argv.includes('--write-lock');
@@ -139,19 +146,32 @@ function validateVersion(version) {
       const changed = [...setA.keys()].filter((c) => setB.has(c) && setA.get(c) !== setB.get(c));
 
       const where = `data/${version}/structure.lock`;
-      // v4 is locked outright. v5 is an append-only ledger: additions are expected and
-      // merely warn, but removing or mutating an existing line is the forbidden act —
-      // "a number, once used, is never reused or deleted".
+      // v4 is locked outright. A v5 number becomes permanent at release, not at merge:
+      // after V5_RELEASE_DATE a removal is the forbidden act — "a number, once released,
+      // is never reused or deleted". Before it, a removal is allowed but must be
+      // explained; validateRationales() polices that, because --write-lock would hide a
+      // deletion from this check. A GUID changing under the same code is forbidden always.
       if (version === 'v4') {
         if (removed.length) err(where, `domains removed: ${removed.join(', ')}`);
         if (added.length) err(where, `domains added: ${added.join(', ')}`);
         if (changed.length) err(where, `structure changed for: ${changed.join(', ')}`);
       } else {
-        if (removed.length) err(where, `domains removed (forbidden): ${removed.join(', ')}`);
-        if (changed.length) err(where, `identity/parentage changed (forbidden): ${changed.join(', ')}`);
-        // An error, not a warning: a stale lock means the append-only ledger silently
-        // stopped recording additions. Nobody hits this by accident any more — new
-        // domains are applied by scripts/apply-proposal.mjs, which regenerates it.
+        if (removed.length)
+          err(
+            where,
+            V5_RELEASE_DATE
+              ? `domains removed (forbidden since release): ${removed.join(', ')}`
+              : `${removed.length} domain(s) removed but not recorded: ${removed.join(', ')} — regenerate with --write-lock (see data/v5/POLICY.md)`
+          );
+        const guidOf = (line) => line.split('\t')[1].toUpperCase();
+        const reGuided = changed.filter((c) => guidOf(setA.get(c)) !== guidOf(setB.get(c)));
+        if (reGuided.length) err(where, `GUID changed (forbidden): ${reGuided.join(', ')}`);
+        const reshaped = changed.filter((c) => !reGuided.includes(c));
+        if (reshaped.length)
+          err(where, `structure changed but not recorded: ${reshaped.join(', ')} — regenerate with --write-lock`);
+        // An error, not a warning: a stale lock means the ledger silently stopped
+        // recording additions. Nobody hits this by accident any more — new domains are
+        // applied by scripts/apply-proposal.mjs, which regenerates it.
         if (added.length)
           err(where, `${added.length} domain(s) added but not recorded: ${added.slice(0, 8).join(', ')}${added.length > 8 ? ' …' : ''} — regenerate with --write-lock (see data/v5/POLICY.md)`);
       }
@@ -193,12 +213,17 @@ function validateCompatibility(v4, v5) {
       err(where, `new v5 domain ${d.code} reuses a v4 GUID`);
 }
 
-// --- every added domain must say why it exists ----------------------------
+// --- every added or removed domain must say why ---------------------------
 /**
- * A domain number is permanent, so the reason it was created has to live in the
- * repository rather than in a mutable GitHub issue. Reads both the frozen migration
- * change-sets and the forward-going ledger; all 10 current v5-only domains satisfy
- * this, so it holds at zero exceptions.
+ * The reason a v5 domain was created, or removed before release, has to live in the
+ * repository rather than in a mutable GitHub issue. Reads the frozen migration
+ * change-sets and then the forward-going ledger, in that order, so for each code the
+ * last entry wins: a draft number that was removed and later reused is judged by its
+ * newest `op: add`.
+ *
+ * This, not the structure lock, is what guards removal: `--write-lock` regenerates the
+ * lock from whatever is on disk, so a deleted file leaves no trace there. A code whose
+ * last entry is `op: add` but which is gone from v5 was deleted without explanation.
  */
 function validateRationales(v4, v5) {
   const where = 'data/v5/changes.yaml';
@@ -215,20 +240,37 @@ function validateRationales(v4, v5) {
       return;
     }
     for (const e of entries)
-      if (e?.op === 'add' && e.code) documented.set(String(e.code), { rel, entry: e });
+      if ((e?.op === 'add' || e?.op === 'remove') && e.code)
+        documented.set(String(e.code), { rel, entry: e });
   };
 
-  ingest('data/v5/changes.yaml');
   for (const f of readdirSync(`${ROOT}data/v5/history`).sort())
     if (f.endsWith('.yaml')) ingest(`data/v5/history/${f}`);
+  ingest('data/v5/changes.yaml');
 
   for (const d of v5.ordered) {
     if (v4.byCode.has(d.code)) continue;
     const rec = documented.get(d.code);
-    if (!rec)
-      err(where, `${d.code} was added to v5 with no "op: add" entry — every new domain must record why it exists`);
+    if (!rec || rec.entry.op !== 'add')
+      err(where, `${d.code} is in v5 with no current "op: add" entry — every new domain must record why it exists`);
     else if (!String(rec.entry.rationale ?? '').trim())
       err(rec.rel, `${d.code} has an add entry with no rationale`);
+  }
+
+  for (const [code, { rel, entry }] of documented) {
+    if (v5.byCode.has(code)) continue;
+    if (entry.op === 'add') {
+      err(where, `${code} was removed from v5 with no "op: remove" entry — a removal must record why`);
+      continue;
+    }
+    if (v4.byCode.has(code)) continue; // the compatibility charter already rejects this
+    if (!String(entry.rationale ?? '').trim()) err(rel, `${code} has a remove entry with no rationale`);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(entry.date ?? '')))
+      err(rel, `${code} has a remove entry with no YYYY-MM-DD date`);
+    else if (V5_RELEASE_DATE && String(entry.date) >= V5_RELEASE_DATE)
+      err(rel, `${code} was removed on ${entry.date}, after v5's release on ${V5_RELEASE_DATE} — released numbers are permanent`);
+    if (entry.migrate && !v5.byCode.has(String(entry.migrate)))
+      err(rel, `${code}'s remove entry migrates to ${entry.migrate}, which is not in v5`);
   }
 }
 

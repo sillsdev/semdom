@@ -11,6 +11,10 @@ questions:
     words: screen, touchscreen, SIM card, battery, charger, camera, button
   - q: What words refer to the services or costs of using a mobile phone?
     words: airtime, credit, data, top up, recharge, network, coverage, signal
+  - q: >-
+      What words refer to calling someone and hanging up before they answer, as a signal or
+      greeting?
+    words: flash, beep, missed call, call back
   - q: What words refer to sending a short written message on a phone?
     words: text message, text (v), SMS, message
   - q: What words refer to a program on a smartphone?

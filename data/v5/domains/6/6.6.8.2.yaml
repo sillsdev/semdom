@@ -1,12 +1,16 @@
 code: "6.6.8.2"
 guid: 1458C506-776E-DA3C-885A-2877352FBDF4
-name: Computers, software
-description: Use this domain for words related to computers and the programs that run on them.
+name: Computers, hardware, software
+description: >-
+  Use this domain for words related to computers, the machines connected to them, and the
+  programs that run on them.
 questions:
   - q: What words refer to a computer?
     words: computer, laptop, desktop, tablet, device
-  - q: What words refer to the parts of a computer?
-    words: screen, monitor, keyboard, mouse, hard drive, memory, processor
+  - q: What words refer to the parts of a computer and the machines connected to it?
+    words: >-
+      hardware, screen, monitor, keyboard, mouse, hard drive, memory, processor, printer,
+      scanner, speaker, cable, USB, flash drive
   - q: What words refer to programs that run on a computer?
     words: program, software, app, application, operating system
   - q: What words refer to using a computer?

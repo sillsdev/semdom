@@ -71,12 +71,21 @@ output, not an input. This was inverted deliberately; see `README.md` and
     lists itself as related; 207 of 420 related links are one-way; and 70 GUIDs are
     mixed-case (so GUIDs are matched case-insensitively and never rewritten).
   - `data/v4/structure.lock` holds code/GUID/parent/child-count and **no text**, so an
-    approved typo fix never touches it. `data/v5/structure.lock` is an append-only
-    ledger: removal or mutation fails, and an unrecorded addition now **fails** too
-    (it used to warn) - new domains arrive via `apply-proposal.mjs`, which regenerates it.
-  - Every v5 domain absent from v4 must have an `op: add` entry carrying a non-empty
-    `rationale`, in `data/v5/changes.yaml` (forward-going, append-only) or the frozen
-    `data/v5/history/*.yaml`. Holds at zero exceptions: all 10 current adds satisfy it.
+    approved typo fix never touches it. A stale `data/v5/structure.lock` fails CI, as
+    does any GUID change - new domains arrive via `apply-proposal.mjs`, which
+    regenerates it.
+  - **v5 numbers become permanent at release, not at merge.** `V5_RELEASE_DATE` in
+    `scripts/lib/domain-rules.mjs` is `null` while v5 is a draft. Until it is set, a
+    v5-added domain may be deleted (and its number reused) if `changes.yaml` gets an
+    `op: remove` entry with `rationale`, `date` and usually `migrate`. Domains carrying a
+    v4 code can never be removed (the compatibility charter). The *ledger* is the
+    removal guard, not the lock: `--write-lock` regenerates the lock from disk and would
+    hide a deletion, so `validateRationales` errors on any code whose last ledger entry
+    is `op: add` but which is gone from v5.
+  - Every v5 domain absent from v4 must have a current `op: add` entry carrying a
+    non-empty `rationale`, in `data/v5/changes.yaml` (forward-going, append-only) or the
+    frozen `data/v5/history/*.yaml`. History is read first, then `changes.yaml`, so for
+    each code the newest entry wins.
     Both ledgers are read with `FAILSAFE_SCHEMA` - an unquoted `code: 4.10` in a
     hand-written entry would otherwise be the number 4.1.
 - **v4 vs v5 policy**: v4 is structurally locked, text-editable under

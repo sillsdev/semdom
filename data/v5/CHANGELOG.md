@@ -1,11 +1,12 @@
 # Semantic Domains v5 — Draft Changelog
 
-Generated from `v5/changes/*.yaml`. 1802 domains total (10 added). 2 migration hints.
+Summarizes `history/*.yaml` (the original migration pass, frozen) and `changes.yaml` (everything since), and is kept
+up to date by hand when either changes. 1802 domains total (10 added). 3 migration hints.
 
 ## gaps.yaml
 
 - ADD 1.7.2 "Pollution, environmental damage" — v4 has no domain for pollution, waste, recycling, or climate — all flagged as unowned by the gap audit.
-- ADD 4.6.8 "Elections, voting" — 'vote'/'election' flagged as unowned; civic participation vocabulary was missing.
+- ADD 4.6.8 "Elections, voting" — 'vote'/'election' flagged as unowned; civic participation vocabulary was missing. *(Removed 2026-10-13; see the Merz review below.)*
 - ADD 6.9.7 "Aid and development organization" — 'NGO' flagged as unowned; aid/development work is a major part of daily life in target communities.
 
 ## neutrality.yaml
@@ -57,3 +58,24 @@ Generated from `v5/changes/*.yaml`. 1802 domains total (10 added). 2 migration h
   (Off-grid/solar power is common in target communities.)
 - ADD-Q 2.5.7.2 "What words refer to preventing disease with an injection or dose?"
   (Vaccination vocabulary absent from the Medicine domain.)
+
+## changes.yaml — v5 review by Sharon and Johannes Merz (2026-10-13)
+
+- ADD 6.6.8.2.1 "Artificial intelligence" — No vocabulary for artificial intelligence existed in v4 or v5; chatbots, voice assistants and machine translation are now in everyday use.
+- REMOVE 4.6.8 "Elections, voting" — Duplicated v4 4.6.6.4 "Election", which the gap audit missed. Removed before release, under the policy that v5 numbers become permanent at release.
+  ↳ migrate: 4.6.8 → 4.6.6.4 (Senses tagged 4.6.8 in the draft → re-tag 4.6.6.4.)
+- RENAME 4.6.6.4 "Election" → "Elections, voting"
+- REDESCRIBE 4.6.6.4 — Broadened to take in the questions of the removed 4.6.8; the v4 question is kept, so nothing tagged here is orphaned.
+- ADD-Q 4.6.6.4 "What words refer to choosing not to vote?" (abstain)
+- ADD-Q 2.6.5 "What words refer to a person whose sense of being male or female differs from their body at birth?"
+  (Gender identity, not orientation, so it belongs here rather than in 2.6.2.4.)
+- REDESCRIBE 2.6.2.4 — Points gender identity to 2.6.5; the two domains now cross-link.
+- RENAME 6.6.8.2 "Computers, software" → "Computers, hardware, software"
+- REDESCRIBE 6.6.8.2 — Covers the machines connected to a computer.
+- EDIT-Q 6.6.8.2 #2 — Now covers connected machines too; adds hardware, printer, scanner.
+- EDIT-Q 3.5.9.7 #6 — Add sign in, sign out.
+- EDIT-Q 2.5.7.2 #2 — Replace the US brand name Tylenol with paracetamol and acetaminophen; add ibuprofen. (v5 only; v4 policy does not cover brand-name changes.)
+- ADD-Q 3.5.9.2.1 "What words refer to calling someone and hanging up before they answer, as a signal or greeting?"
+  (Flash, beep: common practice where airtime is scarce.)
+- ADD-Q 6.6.8.1 "What words refer to producing electricity?"
+  (Wind power, turbines, renewable and alternative energy.)

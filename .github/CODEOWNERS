@@ -1,12 +1,16 @@
 # The released v4 standard: structure is locked and text changes need a maintainer.
 /data/v4/                 @dhigby
 
-# The v5 draft. An added number is permanent the moment it merges, draft or not, so a
-# new domain file needs a second pair of eyes even though v5 is unreleased. Two owners,
-# so v5 review is not single-threaded on one person.
+# The v5 draft. Its numbers become permanent at release, but a draft number is already
+# published and may already be tagged, so adding or removing one needs a second pair of
+# eyes. Two owners, so v5 review is not single-threaded on one person.
 /data/v5/domains/         @dhigby @jasonleenaylor
 /data/v5/changes.yaml     @dhigby @jasonleenaylor
 /data/v5/POLICY.md        @dhigby
+
+# V5_RELEASE_DATE lives here. Setting it is the v5 release: from then on no v5 number
+# can be removed.
+/scripts/lib/domain-rules.mjs  @dhigby
 
 # The lock files are the enforcement mechanism. Regenerating one is the only way to
 # change a version's structure, so that act must always reach a maintainer.

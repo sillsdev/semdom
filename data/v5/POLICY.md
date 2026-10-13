@@ -3,29 +3,49 @@
 Version 5 is a **draft under review**. It is not released, and its names, descriptions
 and questions are expected to change.
 
-Its **structure is not**. v5 is append-only: domains may be added, but a number that has
-been merged is already permanent.
+Its **structure becomes permanent at release**. Until then, a domain that v5 *added* may
+still be removed, and its number reused, because no released standard has ever
+contained it.
 
-> A draft number is still a number. From the moment an addition merges, it is published
-> on semdom.org, it ships in `SemDom5-draft.xml`, and someone may tag a word to it. It
-> can never afterwards be reused, renumbered, re-parented or deleted.
+> A v5 number becomes permanent the day v5 is released. From then on it can never be
+> reused, renumbered, re-parented or deleted, exactly like a v4 number.
 
-That single sentence is why everything below is stricter than "draft" suggests.
-`scripts/validate.mjs` enforces it: a removal or an identity change in
-`data/v5/structure.lock` is a hard error, not a warning.
+The release is recorded in one place, `V5_RELEASE_DATE` in
+`scripts/lib/domain-rules.mjs`, and `scripts/validate.mjs` enforces the rule from it.
+
+Draft numbers are still published on semdom.org and in `SemDom5-draft.xml`, so someone
+may already have tagged words to one. That is why a removal is never silent. It needs an
+`op: remove` entry in `data/v5/changes.yaml` that says why, and where anything already
+tagged should go instead.
 
 ## Allowed
 
 - **Add** a domain at the next free number under an existing parent
 - **Revise** a name, description, question, example words or example sentence
 - **Broaden** a domain's scope
-- **Soft-deprecate** — mark a domain "prefer subdomains" in its description; the domain
-  stays
+- **Soft-deprecate**: mark a domain "prefer subdomains" in its description, and the
+  domain stays
+- **Before release only: remove** a domain that v5 added. Record it in `changes.yaml`:
+
+  ```yaml
+  - op: remove
+    code: "4.6.8"
+    name: "Elections, voting"
+    migrate: "4.6.6.4"     # where words already tagged here should go
+    rationale: >-
+      Why the domain is being removed.
+    date: "2026-10-13"
+  ```
+
+  Delete the domain file, then run `node scripts/validate.mjs --write-lock`. Once the
+  removal merges, the number is free again and the next addition under that parent may
+  take it.
 
 ## Forbidden — CI rejects these
 
-- deleting a domain
-- reusing, renumbering or re-parenting a code
+- deleting or renumbering any domain that came from v4, at any time
+- deleting a v5-added domain after release, or without an `op: remove` entry
+- re-parenting a code
 - changing a GUID
 - narrowing a domain so that words already tagged to it become mis-tagged
 
@@ -62,7 +82,9 @@ must not have burned a number on its way through.
 
 A new child takes the **highest existing sibling number plus one**. Gaps are never
 filled — a missing number may be missing because it was considered and discarded, and
-nothing in the tooling can know that. v5 currently has no gaps at all.
+nothing in the tooling can know that. v5 currently has no gaps at all. A removed draft
+domain that was the *last* child leaves no gap, so its number is the next one handed out.
+That reuse is deliberate, and it is safe only because the number was never released.
 
 A tenth child would produce the first two-digit segment in the standard's history
 (`1.7.10`). That is legal, and `validate.mjs` warns about it rather than failing, because
@@ -72,11 +94,12 @@ with `1.7.1`. Treat the warning as a prompt to be sure, not as an obstacle.
 ### Rationale is required
 
 Every added domain must have an `op: add` entry with a non-empty `rationale` in
-`data/v5/changes.yaml`. `scripts/validate.mjs` rejects a v5 domain that has none.
+`data/v5/changes.yaml`, and every removed one an `op: remove` entry. `scripts/validate.mjs`
+rejects a v5 domain that has no add entry, and a removal that has no remove entry.
 
-This is not paperwork. A domain number is permanent, so the reason it exists has to
-outlive the conversation that created it — and a GitHub issue is mutable, deletable and
-not part of the repository. `data/v5/history/*.yaml` holds the rationale for the ten
+This is not paperwork. A domain number outlives the conversation that created it, or
+removed it, and so must the reason. A GitHub issue is mutable, deletable and not part
+of the repository, so the record lives here. `data/v5/history/*.yaml` holds the rationale for the ten
 domains added during the original migration pass and is frozen; new entries go in
 `changes.yaml`.
 

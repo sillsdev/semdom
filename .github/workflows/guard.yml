@@ -60,9 +60,9 @@ jobs:
 
           # A domain file added or deleted is an add or a delete, whatever else it is.
           echo "$status" | grep -E '^A.*data/v[0-9]+/domains/.*\.yaml$' >/dev/null \
-            && note 'A domain was added without a pull request. New numbers are permanent; see data/v5/POLICY.md.'
+            && note 'A domain was added without a pull request. Numbers become permanent at release; see data/v5/POLICY.md.'
           echo "$status" | grep -E '^D.*data/v[0-9]+/domains/.*\.yaml$' >/dev/null \
-            && note 'A domain file was deleted. Deletion is forbidden outright; see docs/PRINCIPLES.md.'
+            && note 'A domain file was deleted without a pull request. Only an unreleased v5 domain may be removed, and only through review; see data/v5/POLICY.md.'
 
           # The lock files are the enforcement mechanism for structure.
           echo "$status" | grep -E 'data/v[0-9]+/structure\.lock$' >/dev/null \

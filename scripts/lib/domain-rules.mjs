@@ -14,6 +14,16 @@ export const GUID_RE =
   /^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$/;
 export const CODE_RE = /^\d+(\.\d+)*$/;
 
+/**
+ * The day v5 is released, as "YYYY-MM-DD", or null while it is still a draft.
+ *
+ * A v5 number becomes permanent at release, not at merge. Until then a draft domain may
+ * be removed (with an `op: remove` entry in data/v5/changes.yaml) and its number reused.
+ * From this date on, validate.mjs rejects any removal dated on or after it, which is
+ * exactly the rule v4 lives under. Setting it is the release; see data/v5/POLICY.md.
+ */
+export const V5_RELEASE_DATE = null;
+
 /** Characters validate.mjs rejects outright in any stored text field. */
 const CONTROL_RE = /[\t\x00-\x08\x0b\x0c\x0e-\x1f]/;
 const LINE_BREAK_RE = /[\r\n]/;
